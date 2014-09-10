@@ -1,2 +1,423 @@
-Hello World
-Still work in progress
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Drag and Drop Demo</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="js/lib/angular.js"></script>
+    <script src="js/lvl-uuid.js"></script>
+    <script src="js/lvl-drag-drop.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+    <style>
+        .lvl-over {
+            /* applied to a drop target when a draggable object is over it */
+            border: 2px dashed black !important;
+        }
+
+        .show-parent {
+            /* applied to a drop target when a draggable object is over it */
+            border: 2px dashed black !important;
+        }
+
+        .lvl-target {
+            /* applied to all drop targets when a drag operation begins, used to indicate drop targets on a page */
+            background-color: #ddd;
+            opacity: .5;
+        }
+
+        [draggable] {
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            /* Required to make elements draggable in old WebKit */
+            -khtml-user-drag: element;
+            -webkit-user-drag: element;
+            cursor: move;
+        //border:1px solid black;
+        }
+
+        .peg {
+            text-align: center;
+        //font-weight: bold;
+            border:1px black solid;
+            width: 75px;
+            margin: 10px;
+        }
+
+        .slot {
+            margin-right:2px;
+            margin-top:2px;
+            width:8%;
+            height:25px;
+            display:inline-block;
+            border: none;
+        }
+
+        .red {
+            background-color: red;
+        }
+
+        .blue {
+            background-color: blue;
+        }
+
+        .green {
+            background-color: green;
+        }
+
+        .black {
+            background-color: black;
+            color: white;
+        }
+
+        .grey {
+            background-color: grey;
+        }
+
+        pre strong {
+            font-size:12pt;
+        }
+
+        .col-md-8 {
+            border: solid;
+            margin: 1px;
+            width: 800;
+            height: 500;
+            position: absolute;
+        }
+
+        .droppedChild {
+            width: 90%;
+            height: 90%;
+            position: absolute;
+
+        }
+
+        .col-md-3 {
+            float: right;
+        }
+
+        .childContainer {
+            padding: 2px;
+            width: 12em;
+            height: 5em;
+            position: absolute;
+
+
+        }
+
+        .templateConatiner {
+            padding: 2em;
+            width :inherit;
+            height : 700;
+        }
+
+        .childContainerShown {
+            border: 1px dashed grey;
+        }
+
+        .row-padded {
+            padding: 2px;
+        }
+    </style>
+</head>
+<body class="container" ng-app="ddApp">
+<div class="page-header">
+    <h1>Template Editor <small>Simple drag and drop to create templates</small></h1>
+</div>
+
+<!--<h1>Template Editor</h1>-->
+<!--<p></p>-->
+
+<div class="templateConatiner container-fluid" ng-controller="ddController" style="margin-top:50px;">
+    <div class="row row-padded">
+        <div class="col-md-2">
+            <select class="form-control" ng-model="selectedTemplate" ng-options="template.name for template in templates"></select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-control" >
+                <option>Email</option>
+                <option>Print</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+
+            <select class="form-control" >
+                <option>en-US</option>
+                <option>en-UK</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="row row-padded">
+        <div class="btn-toolbar content" style="padding-left: 20%">
+            <div class="btn-group">
+                <button class="btn btn-default" onclick="alert('m here')" href="#"><i class="glyphicon glyphicon-print"></i></button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-bold"></i></button>
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-italic"></i></button>
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-font"></i></button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-align-center"></i></button>
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-align-right"></i></button>
+                <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-align-justify"></i></button>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <p>Click and drag an item onto the grid to the left</p>
+            <div class="row row-padded">
+                <button class="btn btn-default " x-lvl-draggable="true" data-type="INPUT">
+                    <span class="glyphicon glyphicon-pencil"></span> Single Line
+                </button>
+            </div>
+            <div class="row row-padded">
+                <button class="btn btn-default " x-lvl-draggable="true" data-type="IMAGE">
+                    <span class="glyphicon glyphicon-picture"></span> Image
+                </button>
+            </div>
+
+            <div class="row row-padded">
+                <button class="btn btn-default " x-lvl-draggable="true" data-type="LABEL">
+                    <span class="glyphicon glyphicon-tag"></span> Label
+                </button>
+            </div>
+            <div class="row row-padded">
+                <button class="btn btn-default " x-lvl-draggable="true" data-type="AREA">
+                    <span class="glyphicon glyphicon-text-width"></span> Text Area
+                </button>
+            </div>
+            <div class="row row-padded">
+                <button class="btn btn-default " x-lvl-draggable="true" data-type="VARIABLE">
+                    <span class="glyphicon glyphicon-text-width"></span> Variable
+                </button>
+            </div>
+
+
+
+
+        </div>
+        <div name="mainContainerDiv" class="col-md-8" x-lvl-drop-target="true" x-on-drop="droppedXY(dragEl, dropEl, locationEl)">
+
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+<script>
+    angular
+            .module('ddApp', ['lvl.directives.dragdrop', 'lvl.services']) // register the directive with your app module
+            .controller('ddController', ['$scope' , '$compile', 'uuid', '$log', function($scope, $compile, uuid, $log){ // function referenced by the drop target
+
+                $scope.templates = [
+                    {name:'Bill', type:'BILL_NOTIFICATION', variables :[{name: "Transaction Date",
+                        value: "transactionDate"},
+                        {name: "Amount",
+                            value: "amount"},
+                        {name: "Title",
+                            value: "title"}]},
+                    {name:'Overdue', type:'OVERDUE_NOTIFICATION', variables :[{name: "Due Date",
+                        value: "dueDate"},
+                        {name: "Patron Name",
+                            value: "patronName"},
+                        {name: "Title",
+                            value: "title"}]},
+                    {name:'Hold', type:'HOLD_NOTIFICATION', variables :[{name: "Hold Date",
+                        value: "holdDate"},
+                        {name: "Patron Name",
+                            value: "patronName"},
+                        {name: "Title",
+                            value: "title"}]}
+
+                ];
+
+                $scope.variableNames = ["Due Date", "Transaction Date"];
+                $scope.selectedTemplate = $scope.templates[1];
+
+                $scope.selectedVariable = $scope.selectedTemplate.variables[0];
+
+                $scope.itemsInObj = [{
+                    left: 48,
+                    top: 92,
+                    key: "Dear Surajeet",
+                    id : "id0",
+                    ref : null,
+                    type : "AREA",
+                    width : 10,
+                    height : 3
+
+                },
+                    {
+                        left: 667,
+                        top: 29,
+                        key: null,
+                        id : "id1",
+                        ref : "http://cdmresolver.worldcat.org/oclc/viewonline/dmscripts/template/oclc_logo.jpg",
+                        type : "IMAGE",
+                        width : 10,
+                        height : 3
+
+                    }];
+
+                $scope.createShape = function(index, mainDivEl) {
+                    //add the dragged color
+                    var item = $scope.itemsInObj[index];
+                    var childContainer = angular.element("<span  x-lvl-dropped-target='true'  ng-dblclick='showEdit($event)' resize='showEdit($event)' x-lvl-draggable='true' class='childContainer' style='top: " + item.top + "px; left: " + item.left  + "px';/>");
+
+                    var dataType = item.type;
+                    if (dataType == 'INPUT') {
+
+                        childContainer.append("<input class='droppedChild' ng-focus='showParent($event, true)' ng-blur='showParent($event, false)' ng-model='itemsInObj[" + index + "].key' type='text' value=" + item.key + "></input>");
+
+                    } else if (dataType == 'IMAGE') {
+                        childContainer.append("<img ng-focus='showParent($event, true)' ng-blur='showParent($event, false)' src='" + item.ref + "'></img>");
+                    } else if (dataType == 'LABEL') {
+                        childContainer.append("<span class='droppedChild' x-notification-label ng-model='itemsInObj[" + index + "].key'>" + item.key + "</span>");
+                    } else if (dataType == 'AREA') {
+                        childContainer.append("<textarea class='droppedChild' ng-focus='showParent($event, true)' ng-blur='showParent($event, false)' ng-model='itemsInObj[" + index + "].key' type='text' value=" + item.key + "/>");
+                    }  else if (dataType == 'VARIABLE') {
+                        var son = angular.element("<select class='form-control droppedChild ' ng-model='selectedVariable' ng-options='item.name for item in selectedTemplate.variables'>" +
+
+                                "</select>");
+
+                        childContainer.append(son);
+                    }
+                    childContainer.attr("id", item.id);
+                    $compile(childContainer)($scope);
+                    mainDivEl.append(childContainer);
+                }
+
+                var mainContainer = angular.element('div.col-md-8');
+
+                angular.forEach($scope.itemsInObj,function(value, index) {
+                    $scope.createShape(index, mainContainer);
+                });
+
+
+
+                $scope.droppedXY = function( dragEl, dropEl, locationEl) {
+                    //this is application logic, for the demo we just want to color the grid squares
+                    //the directive provides a native dom object, wrap with jqlite
+                    var drop = angular.element(dropEl);
+                    var drag = angular.element(dragEl);
+
+                    //clear the previously applied color, if it exists
+
+                    if (drag.attr("x-lvl-dropped-target")) {
+                        dragEl.style.top = locationEl.top;
+                        dragEl.style.left = locationEl.left;
+                        var itemChanged = $scope.getItemById(drag.attr("id"));
+                        if (itemChanged) {
+                            itemChanged.top = locationEl.top;
+                            itemChanged.left = locationEl.left;
+                        }
+                        $scope.$emit("LVL-DRAG-END");
+                    } else {
+                        var newItem =  {};
+                        newItem.id = uuid.new();
+
+                        var dataType = drag.attr("data-type");
+                        newItem.type = dataType;
+                        newItem.top = locationEl.top;
+                        newItem.left = locationEl.left;
+
+                        if (dataType == 'INPUT') {
+                            newItem.key = "Text";
+
+                        } else if (dataType == 'IMAGE') {
+                            newItem.ref = "http://cdmresolver.worldcat.org/oclc/viewonline/dmscripts/template/oclc_logo.jpg";
+                        } else if (dataType == 'LABEL') {
+                            newItem.key = "My Label";
+                        } else if (dataType == 'VARIABLE') {
+                            newItem.key = $scope.selectedTemplate.variables[0];
+                        }
+
+                        $scope.itemsInObj.push(newItem);
+                        $scope.createShape($scope.itemsInObj.length -1, mainContainer);
+                        $log.log($scope.itemsInObj);
+
+                    }
+
+
+                }
+
+
+                $scope.getItemById = function(itemId) {
+                    var itemFound;
+                    angular.forEach($scope.itemsInObj, function(item, key) {
+                        if (item.id == itemId) {
+                            itemFound = item;
+                        }
+                    });
+                    return itemFound;
+                };
+
+                $scope.showEdit = function(e) {
+                    var currentEl = e.target;
+                    var currentTarget = angular.element(currentEl);
+                    var item = $scope.getItemById(currentTarget.attr("id"));
+                    if (e.preventDefault) {
+                        e.preventDefault(); // Necessary. Allows us to drop.
+                    }
+
+                    if (e.stopPropagation) {
+                        e.stopPropagation(); // Necessary. Allows us to drop.
+                    }
+                    $(currentEl).popover({
+                        animation : true,
+                        html: true,
+                        content : '<div class="btn-group row">' +
+                                '<button class="btn btn-default"  href="#"><i class="glyphicon glyphicon-cog"></i></button>' +
+                                '<button class="btn btn-default"  href="#"><i class="glyphicon glyphicon-trash"></i></button>' +
+                                '<button class="btn btn-default" href="#"><i class="glyphicon glyphicon-plus"></i></button>' +
+                                '</div>',
+                        title : "Edit " + item.type,
+                        template : '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-content">' +
+
+                                '</div></div>'
+                    });
+                    $(currentEl).popover('show');
+
+
+                };
+
+                $scope.showParent = function(e, visible) {
+                    var currentEl = e.target;
+                    var parentEl = angular.element(currentEl.parentElement);
+                    if (visible) {
+                        parentEl.addClass("childContainerShown");
+                        currentEl.parentElement.style.resize = "both";
+                        currentEl.parentElement.style.overflow = "hidden";
+
+                    } else {
+                        parentEl.removeClass("childContainerShown");
+                        currentEl.parentElement.style.resize = "";
+                        currentEl.parentElement.style.overflow = "";
+                    }
+                };
+
+                $scope.deleteElById = function(e) {
+                    var currentEl = angular.element('span#' + e);
+                    currentEl.remove();
+                };
+
+
+            }]);
+</script>
+</html>
