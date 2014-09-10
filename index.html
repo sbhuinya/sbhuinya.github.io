@@ -6,127 +6,9 @@
     <script src="js/lib/angular.js"></script>
     <script src="js/lvl-uuid.js"></script>
     <script src="js/lvl-drag-drop.js"></script>
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
-
-    <style>
-        .lvl-over {
-            /* applied to a drop target when a draggable object is over it */
-            border: 2px dashed black !important;
-        }
-
-        .show-parent {
-            /* applied to a drop target when a draggable object is over it */
-            border: 2px dashed black !important;
-        }
-
-        .lvl-target {
-            /* applied to all drop targets when a drag operation begins, used to indicate drop targets on a page */
-            background-color: #ddd;
-            opacity: .5;
-        }
-
-        [draggable] {
-            -moz-user-select: none;
-            -khtml-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-            /* Required to make elements draggable in old WebKit */
-            -khtml-user-drag: element;
-            -webkit-user-drag: element;
-            cursor: move;
-        //border:1px solid black;
-        }
-
-        .peg {
-            text-align: center;
-        //font-weight: bold;
-            border:1px black solid;
-            width: 75px;
-            margin: 10px;
-        }
-
-        .slot {
-            margin-right:2px;
-            margin-top:2px;
-            width:8%;
-            height:25px;
-            display:inline-block;
-            border: none;
-        }
-
-        .red {
-            background-color: red;
-        }
-
-        .blue {
-            background-color: blue;
-        }
-
-        .green {
-            background-color: green;
-        }
-
-        .black {
-            background-color: black;
-            color: white;
-        }
-
-        .grey {
-            background-color: grey;
-        }
-
-        pre strong {
-            font-size:12pt;
-        }
-
-        .col-md-8 {
-            border: solid;
-            margin: 1px;
-            width: 800;
-            height: 500;
-            position: absolute;
-        }
-
-        .droppedChild {
-            width: 90%;
-            height: 90%;
-            position: absolute;
-
-        }
-
-        .col-md-3 {
-            float: right;
-        }
-
-        .childContainer {
-            padding: 2px;
-            width: 12em;
-            height: 5em;
-            position: absolute;
 
 
-        }
-
-        .templateConatiner {
-            padding: 2em;
-            width :inherit;
-            height : 700;
-        }
-
-        .childContainerShown {
-            border: 1px dashed grey;
-        }
-
-        .row-padded {
-            padding: 2px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/template.css" />
 </head>
 <body class="container" ng-app="ddApp">
 <div class="page-header">
@@ -160,7 +42,7 @@
     <div class="row row-padded">
         <div class="btn-toolbar content" style="padding-left: 20%">
             <div class="btn-group">
-                <button class="btn btn-default" onclick="alert('m here')" href="#"><i class="glyphicon glyphicon-print"></i></button>
+                <button class="btn btn-default" ng-click='printMe()' href="#"><i class="glyphicon glyphicon-print"></i></button>
             </div>
             <div class="btn-group">
                 <button class="btn btn-default" href="#"><i class="glyphicon glyphicon-bold"></i></button>
@@ -210,7 +92,7 @@
 
 
         </div>
-        <div name="mainContainerDiv" class="col-md-8" x-lvl-drop-target="true" x-on-drop="droppedXY(dragEl, dropEl, locationEl)">
+        <div id="mainContainerDiv" name="mainContainerDiv" class="col-md-8" x-lvl-drop-target="true" x-on-drop="droppedXY(dragEl, dropEl, locationEl)">
 
         </div>
 
@@ -415,6 +297,35 @@
                 $scope.deleteElById = function(e) {
                     var currentEl = angular.element('span#' + e);
                     currentEl.remove();
+                };
+
+                $scope.printMe = function() {
+                    var printContents = document.getElementById("mainContainerDiv").innerHTML;
+                    var originalContents = document.body.innerHTML;
+
+                    if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+                        var popupWin = window.open('', '_blank', 'width=800,height=600,scrollbars=no,menubar=no,toolbar=no,location=no,status=no,titlebar=no');
+                        popupWin.window.focus();
+                        popupWin.document.write('<!DOCTYPE html><html><head>' +
+                                '<link rel="stylesheet" type="text/css" href="css/template.css" />' +
+                                '</head><body onload="window.print()"><div class="reward-body">' + printContents + '</div></html>');
+                        popupWin.onbeforeunload = function (event) {
+                            popupWin.close();
+                            return '.\n';
+                        };
+                        popupWin.onabort = function (event) {
+                            popupWin.document.close();
+                            popupWin.close();
+                        }
+                    } else {
+                        var popupWin = window.open('', '_blank', 'width=800,height=600');
+                        popupWin.document.open();
+                        popupWin.document.write('<html><head><link rel="stylesheet" type="text/css" href="css/template.css" /></head><body onload="window.print()">' + printContents + '</html>');
+                        popupWin.document.close();
+                    }
+                    popupWin.document.close();
+
+                    return true;
                 };
 
 
