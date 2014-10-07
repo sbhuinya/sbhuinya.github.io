@@ -14,7 +14,13 @@ module.directive('lvlDraggable', ['$rootScope', 'uuid', function($rootScope, uui
 
             el.bind("dragstart", function(e) {
                 e.originalEvent.dataTransfer.setData('text', id);
+
                 angular.element(e.target).addClass('lvl-over');
+                var clickedAt = {
+                    left : e.originalEvent.offsetX,
+                    top : e.originalEvent.offsetY
+                };
+                e.originalEvent.dataTransfer.setData('clickedLocation', JSON.stringify(clickedAt));
                 $rootScope.$emit("LVL-DRAG-START");
             });
 
@@ -73,11 +79,13 @@ module.directive('lvlDropTarget', ['$rootScope', 'uuid', function($rootScope, uu
                     e.stopPropagation(); // Necessary. Allows us to drop.
                 }
                 var data = e.originalEvent.dataTransfer.getData("text");
+                var clickedLocation = JSON.parse(e.originalEvent.dataTransfer.getData("clickedLocation"));
+
                 var dest = document.getElementById(id);
                 var src = document.getElementById(data);
                 var location = {
-                    left : e.originalEvent.offsetX,
-                    top : e.originalEvent.offsetY
+                    left : e.originalEvent.offsetX - clickedLocation.left,
+                    top : e.originalEvent.offsetY - clickedLocation.top
                 };
 
                 scope.onDrop({dragEl: src, dropEl: dest, locationEl : location});

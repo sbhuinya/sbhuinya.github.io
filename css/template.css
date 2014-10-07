@@ -113,3 +113,11 @@ pre strong {
 .row-padded {
     padding: 2px;
 }
+
+.mainEditorDiv {
+    height: 510px;
+}
+
+.custom-menu-btn {
+    width: 150px;
+}
